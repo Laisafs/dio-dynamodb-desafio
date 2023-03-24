@@ -1,126 +1,153 @@
 # DIO DynamoDb - Desafio de Projeto
-Repositório para o live coding do dia 30/09/2021 sobre o Amazon DynamoDB
 
-### Serviço utilizado
+Repositório para o desafio de projeto utilizando o DynamoDB
+
+### Serviços utilizado
   - Amazon DynamoDB
   - Amazon CLI para execução em linha de comando
+  - Docker
+  
 
 ### Comandos para execução do experimento:
 
+
+- Criar container com dynamoDb localamente:
+
+No diretório do arquivo "docker-compose.yml" executar o comando para que o container de dynamodb seja criado:
+```sh
+docker-compose up --build
+```
 
 - Criar uma tabela
 
 ```
 aws dynamodb create-table \
-    --table-name Music \
-    --attribute-definitions \
-        AttributeName=Artist,AttributeType=S \
-        AttributeName=SongTitle,AttributeType=S \
+    --table-name Carro \
+    --attribute-definition \
+      AttributeName=Modelo,AttributeType=S \
+      AttributeName=Ano,AttributeType=S \
     --key-schema \
-        AttributeName=Artist,KeyType=HASH \
-        AttributeName=SongTitle,KeyType=RANGE \
-    --provisioned-throughput \
-        ReadCapacityUnits=10,WriteCapacityUnits=5
+      AttributeName=Modelo,KeyType=HASH \
+      AttributeName=Ano,KeyType=RANGE \
+   --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
+   --endpoint-url http://localhost:8000
 ```
 
 - Inserir um item
 
 ```
 aws dynamodb put-item \
-    --table-name Music \
-    --item file://itemmusic.json \
+    --table-name Carro \
+    --item file://itemCarro.json \
+    --endpoint-url http://localhost:8000
 ```
 
 - Inserir múltiplos itens
 
 ```
 aws dynamodb batch-write-item \
-    --request-items file://batchmusic.json
+    --request-items file://batchcarro.json \
+    --endpoint-url http://localhost:8000
 ```
 
-- Criar um index global secundário baeado no título do álbum
+- Criar um index global secundário baeado na cor do carro
 
 ```
 aws dynamodb update-table \
-    --table-name Music \
-    --attribute-definitions AttributeName=AlbumTitle,AttributeType=S \
+    --table-name Carro \
+    --attribute-definitions AttributeName=Cor,AttributeType=S \
     --global-secondary-index-updates \
-        "[{\"Create\":{\"IndexName\": \"AlbumTitle-index\",\"KeySchema\":[{\"AttributeName\":\"AlbumTitle\",\"KeyType\":\"HASH\"}], \
-        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
+        "[{\"Create\":{\"IndexName\": \"Cor-index\",\"KeySchema\":[{\"AttributeName\":\"Cor\",\"KeyType\":\"HASH\"}], \
+        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]" \
+    --endpoint-url http://localhost:8000
 ```
 
-- Criar um index global secundário baseado no nome do artista e no título do álbum
+- Criar um index global secundário baseado no modelo e cor do carro
 
 ```
 aws dynamodb update-table \
-    --table-name Music \
+    --table-name Carro \
     --attribute-definitions\
-        AttributeName=Artist,AttributeType=S \
-        AttributeName=AlbumTitle,AttributeType=S \
+        AttributeName=Model,AttributeType=S \
+        AttributeName=Cor,AttributeType=S \
     --global-secondary-index-updates \
-        "[{\"Create\":{\"IndexName\": \"ArtistAlbumTitle-index\",\"KeySchema\":[{\"AttributeName\":\"Artist\",\"KeyType\":\"HASH\"}, {\"AttributeName\":\"AlbumTitle\",\"KeyType\":\"RANGE\"}], \
-        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
+        "[{\"Create\":{\"IndexName\": \"ModeloCor-index\",\"KeySchema\":[{\"AttributeName\":\"Modelo\",\"KeyType\":\"HASH\"}, {\"AttributeName\":\"Cor\",\"KeyType\":\"RANGE\"}], \
+        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]" \
+    --endpoint-url http://localhost:8000
+
 ```
 
-- Criar um index global secundário baseado no título da música e no ano
+- Criar um index global secundário baseado no ano e na marca do carro
 
 ```
 aws dynamodb update-table \
-    --table-name Music \
+    --table-name Carro \
     --attribute-definitions\
-        AttributeName=SongTitle,AttributeType=S \
-        AttributeName=SongYear,AttributeType=S \
+        AttributeName=Ano,AttributeType=S \
+        AttributeName=Marca,AttributeType=S \
     --global-secondary-index-updates \
-        "[{\"Create\":{\"IndexName\": \"SongTitleYear-index\",\"KeySchema\":[{\"AttributeName\":\"SongTitle\",\"KeyType\":\"HASH\"}, {\"AttributeName\":\"SongYear\",\"KeyType\":\"RANGE\"}], \
-        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
+        "[{\"Create\":{\"IndexName\": \"AnoMarca-index\",\"KeySchema\":[{\"AttributeName\":\"Ano\",\"KeyType\":\"HASH\"}, {\"AttributeName\":\"Marca\",\"KeyType\":\"RANGE\"}], \
+        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]" \
+    --endpoint-url http://localhost:8000
 ```
 
-- Pesquisar item por artista
-
-```
-aws dynamodb query \
-    --table-name Music \
-    --key-condition-expression "Artist = :artist" \
-    --expression-attribute-values  '{":artist":{"S":"Iron Maiden"}}'
-```
-- Pesquisar item por artista e título da música
+- Pesquisar item por modelo
 
 ```
 aws dynamodb query \
-    --table-name Music \
-    --key-condition-expression "Artist = :artist and SongTitle = :title" \
-    --expression-attribute-values file://keyconditions.json
+    --table-name Carro \
+    --key-condition-expression "Modelo = :modelo" \
+    --expression-attribute-values  '{":modelo":{"S":"Gol"}}' \
+    --endpoint-url http://localhost:8000
 ```
-
-- Pesquisa pelo index secundário baseado no título do álbum
-
-```
-aws dynamodb query \
-    --table-name Music \
-    --index-name AlbumTitle-index \
-    --key-condition-expression "AlbumTitle = :name" \
-    --expression-attribute-values  '{":name":{"S":"Fear of the Dark"}}'
-```
-
-- Pesquisa pelo index secundário baseado no nome do artista e no título do álbum
+- Pesquisar item por modelo e ano
 
 ```
 aws dynamodb query \
-    --table-name Music \
-    --index-name ArtistAlbumTitle-index \
-    --key-condition-expression "Artist = :v_artist and AlbumTitle = :v_title" \
-    --expression-attribute-values  '{":v_artist":{"S":"Iron Maiden"},":v_title":{"S":"Fear of the Dark"} }'
+    --table-name Carro \
+    --key-condition-expression "Modelo = :modelo and Ano = :ano" \
+    --expression-attribute-values file://keyconditions.json \
+    --endpoint-url http://localhost:8000
 ```
 
-- Pesquisa pelo index secundário baseado no título da música e no ano
+- Pesquisa pelo index secundário baseado na cor
 
 ```
 aws dynamodb query \
-    --table-name Music \
-    --index-name SongTitleYear-index \
-    --key-condition-expression "SongTitle = :v_song and SongYear = :v_year" \
-    --expression-attribute-values  '{":v_song":{"S":"Wasting Love"},":v_year":{"S":"1992"} }'
+    --table-name Carro \
+    --index-name Cor-index \
+    --key-condition-expression "Cor = :name" \
+    --expression-attribute-values  '{":name":{"S":"Azul"}}' \
+    --endpoint-url http://localhost:8000
+```
+
+- Pesquisa pelo index secundário baseado no modelo e cor do carro
+
+```
+aws dynamodb query \
+    --table-name Carro \
+    --index-name ModeloCor-index \
+    --key-condition-expression "Modelo = :v_modelo and Cor = :v_cor" \
+    --expression-attribute-values  '{":v_modelo":{"S":"HB20"},":v_cor":{"S":"Azul"} }' \
+    --endpoint-url http://localhost:8000
+```
+
+- Pesquisa pelo index secundário baseado no ano e marca do carro
+
+```
+aws dynamodb query \
+    --table-name Carro \
+    --index-name AnoMarca-index \
+    --key-condition-expression "Ano = :v_ano and Marca = :v_marca" \
+    --expression-attribute-values  '{":v_ano":{"S":"2013"},":v_marca":{"S":"Volkswagen"} }' \
+    --endpoint-url http://localhost:8000
+```
+
+## Observações
+No arquivo "docker-compose.yml" foi definido que o container seria liberado porta 8000, por conta disso é importante sempre utilizar o comando ao final dos comando do AWS CLI
+```
+--endpoint-url http://localhost:8000
 ```
 
 ## Referências
-Fork do [projeto](https://github.com/cassianobrexbit/dio-live-dynamodb)
+Projeto baseado no fork do [projeto](https://github.com/cassianobrexbit/dio-live-dynamodb)
