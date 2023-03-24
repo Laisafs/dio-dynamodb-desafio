@@ -11,7 +11,7 @@ Repositório para o desafio de projeto utilizando o DynamoDB
 ### Comandos para execução do experimento:
 
 
-- Criar container com dynamoDb localamente:
+- Criar container com dynamoDb localmente:
 
 No diretório do arquivo "docker-compose.yml" executar o comando para que o container de dynamodb seja criado:
 ```sh
