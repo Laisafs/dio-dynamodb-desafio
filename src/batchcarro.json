@@ -1,0 +1,34 @@
+{
+    "Carro": [
+        {
+            "PutRequest": {
+                "Item": {
+                  "Modelo": {"S": "Gol"},
+                  "Ano": {"S": "2013"},
+                  "Cor": {"S": "Prata"},
+                  "Marca": {"S": "Volkswagen"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                  "Modelo": {"S": "Sandero"},
+                  "Ano": {"S": "2018"},
+                  "Cor": {"S": "Vermelho"},
+                  "Marca": {"S": "Renault"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                  "Modelo": {"S": "HB20"},
+                  "Ano": {"S": "2020"},
+                  "Cor": {"S": "Azul"},
+                  "Marca": {"S": "Hyundai"}
+                }
+            }
+        }
+      ]
+}
